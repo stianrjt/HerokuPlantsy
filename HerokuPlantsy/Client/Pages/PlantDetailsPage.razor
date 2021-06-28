@@ -1,0 +1,56 @@
+﻿@page "/plantDetails/{ID}"
+
+@using HerokuPlantsy.Shared
+@using System.IO
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject IDialogService DialogService
+@using System.ComponentModel.DataAnnotations
+
+<h1>PlantDetailsPage</h1>
+<h2>HER KOMMER DETALJER OG GRAFER OM PLANTEN SNART :D !!! </h2>
+
+@if (plant != null)
+{
+	<h1>@plant.PlantName</h1>
+	<h1>@plant.PlantType</h1>
+	<h1>@plant.Info</h1>
+	<img src="@plant.Image.ImagePath" alt="plaaaaaant" />
+
+	<h2>WATER LOG</h2>
+	<MudList Class="align-content-end">
+		@foreach (var item in plant.WaterLog)
+		{
+			<MudListItem Icon="fas fa-tint">
+				Watered: @item.WaterDate.LocalDateTime  
+			</MudListItem>
+
+		}
+
+	</MudList>
+}
+
+
+
+
+@code {
+	[Parameter]
+	public string ID { get; set; }
+
+	Plant plant;
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		
+			plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
+		
+
+		if (plant.Image == null)
+		{
+			plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
+		}
+
+	}
+
+}

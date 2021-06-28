@@ -1,0 +1,95 @@
+﻿@page "/allPlants"
+
+@using HerokuPlantsy.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+
+
+@if (plants == null)
+{
+	var emptyPlants = new List<Plant>();
+	<MudTable Items="@emptyPlants" Hover="true" Breakpoint="Breakpoint.Sm" Loading=true LoadingProgressColor="Color.Info">
+		<HeaderContent>
+			<MudTh>	<strong>Plant Name</strong></MudTh>
+			<MudTh><strong>Plant Type</strong></MudTh>
+			<MudTh><strong>Last Watered</strong></MudTh>
+			<MudTh><strong>Info</strong></MudTh>
+			<MudTh><strong>Water Plant Now</strong></MudTh>
+		</HeaderContent>
+	</MudTable>
+
+}
+else
+{
+	//TODO: Leggeg inn fargekoding baset på om planten må vannes. Dette kan settes som interval.
+
+	<MudTable Items="@plants" @onclick="Details" Hover="true" Breakpoint="Breakpoint.Sm" Loading=false LoadingProgressColor="Color.Info">
+		<HeaderContent>
+			<MudTh>	<strong>Plant Name</strong></MudTh>
+			<MudTh><strong>Plant Type</strong></MudTh>
+			<MudTh><strong>Last Watered</strong></MudTh>
+			<MudTh><strong>Info</strong></MudTh>
+			<MudTh><strong>Water Plant Now</strong></MudTh>
+		</HeaderContent>
+		<RowTemplate>
+			@if (true)
+				{
+					link = $"plantDetails/{context.ID.ToString()}";
+				}
+			<MudTd DataLabel="name">@context.PlantName</MudTd>
+			<MudTd DataLabel="type">@context.PlantType</MudTd>
+			<MudTd DataLabel="wateredDate">@context.LastWatered.DateTime</MudTd>
+			<MudTd DataLabel="info" HideSmall="_hidePosition">@context.Info</MudTd>
+			<MudTd DataLabel="wateredNow">
+				@if ((DateTimeOffset.Now - context.LastWatered).Days < 5)
+					{
+					<MudButton Color="Color.Success" Variant="Variant.Filled" Size="Size.Small"
+							   OnClick="@(() => WaterPlant(context))">Water Plant</MudButton>
+					}
+					else if ((DateTimeOffset.Now - context.LastWatered).Days < 7)
+					{
+
+					<MudButton Color="Color.Warning" Variant="Variant.Filled" Size="Size.Small"
+							   OnClick="@(() => WaterPlant(context))">Water Plant</MudButton>
+
+					}
+					else
+					{
+					<MudButton Color="Color.Error" Variant="Variant.Filled" Size="Size.Small"
+							   OnClick="@(() => WaterPlant(context))">Water Plant</MudButton>
+					}
+			</MudTd>
+		</RowTemplate>
+	</MudTable>
+
+}
+
+@code {
+	private List<Plant> plants;
+	private bool _hidePosition;
+	private string link;
+
+	// Gjøre edit om til DetailsPage på onClick på hver rad
+	public void Details()
+	{
+		NavManager.NavigateTo(link);
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+			plants = await Http.GetFromJsonAsync<List<Plant>>("plants");
+	}
+
+
+	public async void WaterPlant(Plant plant)
+	{
+		var waterLog = plant.WaterLog;
+		waterLog.Add(new Water { WaterDate = DateTimeOffset.Now, });
+		plant.WaterLog = waterLog;
+		plant.LastWatered = DateTimeOffset.Now;
+		await Http.PutAsJsonAsync($"plants/{plant.ID}", plant);
+		return;
+	}
+
+}
