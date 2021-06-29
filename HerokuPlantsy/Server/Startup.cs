@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Plantsy.Server.Data;
 using System;
 using System.Linq;
@@ -26,8 +27,24 @@ namespace HerokuPlantsy.Server
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlite("filename = plantsyTestDb.db"));
+			//services.AddDbContext<ApplicationDbContext>(options =>
+			//	options.UseSqlite("filename = plantsyTestDb.db"));
+
+			var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+			var databaseUri = new Uri(databaseUrl);
+			var userInfo = databaseUri.UserInfo.Split(':');
+
+			var builder = new NpgsqlConnectionStringBuilder
+			{
+				Host = databaseUri.Host,
+				Port = databaseUri.Port,
+				Username = userInfo[0],
+				Password = userInfo[1],
+				Database = databaseUri.LocalPath.TrimStart('/')
+			};
+
+			var connectionString =  builder.ToString();
+			services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();
