@@ -40,7 +40,9 @@ namespace HerokuPlantsy.Server
 				Port = databaseUri.Port,
 				Username = userInfo[0],
 				Password = userInfo[1],
-				Database = databaseUri.LocalPath.TrimStart('/')
+				SslMode = SslMode.Require,
+				TrustServerCertificate = true,
+				Database = databaseUri.LocalPath.TrimStart('/'),
 			};
 
 			var connectionString =  builder.ToString();
