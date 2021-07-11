@@ -37,7 +37,7 @@
 		</MudCard>
 	</MudItem>
 
-	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="12">
+	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="6">
 			<MudCard Elevation="3" Class="flex-wrap ma-2">
 				<MudCardContent Elevation="3" Class="flex-wrap ma-2">
 					<MudText Typo="Typo.h3">Water log</MudText>
@@ -54,32 +54,58 @@
 				</MudCardContent>
 			</MudCard>
 	</MudItem>
+	
+	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="6">
+			<MudCard Elevation="3" Class="flex-wrap ma-2">
+				<MudCardContent Elevation="3" Class="flex-wrap ma-2">
+					<div>
+						<MudChart ChartType="ChartType.Bar" ChartSeries="@Series" @bind-SelectedIndex="Index" XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
+					</div>
+				</MudCardContent>
+			</MudCard>
+	</MudItem>
+
+
 </MudGrid>
 		}
 
 
 
 
-		@code {
-			[Parameter]
-			public string ID { get; set; }
+@code {
 
-			Plant plant;
+		private int Index = -1;
+		public List<ChartSeries> Series;
+		public string[] XAxisLabels;
+		public string[] months = new string[] { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-	protected override async Task OnInitializedAsync()
+		[Parameter]
+		public string ID { get; set; }
+		Plant plant;
+
+		protected override async Task OnInitializedAsync()
 		{
-
-
 			plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
 			plant.WaterLog.Sort((x, y) => DateTimeOffset.Compare(y.WaterDate, x.WaterDate));
-
-
 
 			if (plant.Image == null)
 			{
 				plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
 			}
 
-		}
 
-		}
+
+
+		Series = new List<ChartSeries>()
+		{
+			new ChartSeries() { Name = "Watered", Data = plant.WaterLog.Select(x => x.WaterDate.Month).GroupBy(x => x).Select(y => (double)y.Count()).ToArray() },
+		};
+
+		var x = plant.WaterLog.Select(x => x.WaterDate.Month).GroupBy(x => x).Select(y => y.Count());
+
+		XAxisLabels = plant.WaterLog.Select(x =>months[x.WaterDate.Month-1]).Distinct().ToArray();
+
+}
+}
+
+}
