@@ -27,26 +27,26 @@ namespace HerokuPlantsy.Server
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			//services.AddDbContext<ApplicationDbContext>(options =>
-			//	options.UseSqlite("filename = plantsyTestDb.db"));
+			services.AddDbContext<ApplicationDbContext>(options =>
+				options.UseSqlite("filename = plantsyTestDb.db"));
 
-			var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-			var databaseUri = new Uri(databaseUrl);
-			var userInfo = databaseUri.UserInfo.Split(':');
+			//var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+			//var databaseUri = new Uri(databaseUrl);
+			//var userInfo = databaseUri.UserInfo.Split(':');
 
-			var builder = new NpgsqlConnectionStringBuilder
-			{
-				Host = databaseUri.Host,
-				Port = databaseUri.Port,
-				Username = userInfo[0],
-				Password = userInfo[1],
-				SslMode = SslMode.Require,
-				TrustServerCertificate = true,
-				Database = databaseUri.LocalPath.TrimStart('/'),
-			};
+			//var builder = new NpgsqlConnectionStringBuilder
+			//{
+			//	Host = databaseUri.Host,
+			//	Port = databaseUri.Port,
+			//	Username = userInfo[0],
+			//	Password = userInfo[1],
+			//	SslMode = SslMode.Require,
+			//	TrustServerCertificate = true,
+			//	Database = databaseUri.LocalPath.TrimStart('/'),
+			//};
 
-			var connectionString =  builder.ToString();
-			services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
+			//var connectionString =  builder.ToString();
+			//services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(connectionString));
 
 			services.AddControllersWithViews();
 			services.AddRazorPages();

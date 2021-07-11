@@ -1,8 +1,10 @@
 ﻿@page "/editPlant/{ID}"
 
+@using Microsoft.AspNetCore.Authorization
+
 @using HerokuPlantsy.Shared
 @using System.IO
-
+@attribute [Authorize]
 @inject HttpClient Http
 @inject NavigationManager NavManager
 @inject IDialogService DialogService
@@ -10,138 +12,145 @@
 
 @if (updated)
 {
-<MudText>
-	@model.PlantName updated!
-</MudText>}
+	<MudText>
+		@model.PlantName updated!
+	</MudText>
+}
 
 @if (plant == null || model == null)
 {
-<MudSkeleton />
-				<MudSkeleton SkeletonType="SkeletonType.Circle" Width="50px" Height="50px" />
-								<MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="200px" Height="110px" /> }
-											else
-											{
-								<h3>Edit Plant @plant.PlantName</h3>
-												<div style="max-width: 600px;">
-													<EditForm Model="@model" OnValidSubmit="@UpdatePlant">
-														<DataAnnotationsValidator />
-														<MudCard>
-															<MudCardContent>
-																<MudTextField Label="Plant Name"
-																			  @bind-Value="model.PlantName" For="@(() => model.PlantName)" />
-																<MudTextField Label="Plant Type" Class="mt-3"
-																			  @bind-Value="model.PlantType" For="@(() => model.PlantType)" />
-																<MudTextField Label="Info about plant" Class="mt-3"
-																			  @bind-Value="model.Info" For="@(() => model.Info)" />
+	<MudSkeleton />
+	<MudSkeleton SkeletonType="SkeletonType.Circle" Width="50px" Height="50px" />
+	<MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="200px" Height="110px" />
+}
+else
+{
+	<h3>Edit Plant @plant.PlantName</h3>
+	<div style="max-width: 600px;">
+		<EditForm Model="@model" OnValidSubmit="@UpdatePlant">
+			<DataAnnotationsValidator />
+			<MudCard>
+				<MudCardContent>
+					<MudTextField Label="Plant Name"
+								  @bind-Value="model.PlantName" For="@(() => model.PlantName)" />
+					<MudTextField Label="Plant Type" Class="mt-3"
+								  @bind-Value="model.PlantType" For="@(() => model.PlantType)" />
+					<MudTextField Label="Info about plant" Class="mt-3"
+								  @bind-Value="model.Info" For="@(() => model.Info)" />
 
-															</MudCardContent>
+				</MudCardContent>
 
-															<MudCardActions>
-																<InputFile id="fileInput" OnChange="UploadImage" hidden single />
-																<MudIconButton HtmlTag="label"
-																			   Color="Color.Info"
-																			   Icon="@Icons.Filled.PhotoCamera"
-																			   for="fileInput">
-																</MudIconButton>
+				<MudCardActions>
+					<InputFile id="fileInput" OnChange="UploadImage" hidden single />
+					<MudIconButton HtmlTag="label"
+								   Color="Color.Info"
+								   Icon="@Icons.Filled.PhotoCamera"
+								   for="fileInput">
+					</MudIconButton>
 
-																<MudButton @onclick="OpenDialog" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" Class="mr-auto">Delete Plant</MudButton>
+					<MudButton @onclick="DeleteUser" Variant="Variant.Filled" Color="Color.Error">Delete Plant</MudButton>
 
-																<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
-															</MudCardActions>
-														</MudCard>
-													</EditForm>
-												</div>
+					<MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Register</MudButton>
+				</MudCardActions>
+			</MudCard>
+		</EditForm>
+	</div>
 
-																<img src="@imageSrc" alt="PlanteBilde" />}
+	<img src="@imageSrc" alt="DAS IMAGE" />
+}
 
 
 
 
-@code
-{ IList<IBrowserFile> files = new List<IBrowserFile>();
-			string imageSrc = "";
-			private async Task UploadImage(InputFileChangeEventArgs e)
-			{
-				MemoryStream ms = new MemoryStream();
-				await e.File.OpenReadStream().CopyToAsync(ms);
-				var bytes = ms.ToArray();
-
-				var base64 = Convert.ToBase64String(bytes);
-				imageSrc = String.Format("data:image/gif;base64,{0}", base64);
-				model.Image.ImagePath = imageSrc;
-			} }
 
 
 @code
-{ [Parameter]
-			public string ID { get; set; }
+{
+	[Parameter]
+	public string ID { get; set; }
 
-			Plant plant;
+	Plant plant;
 
-			EditPlantForm model = new EditPlantForm();
-
-
-			bool updated;
-
-			public record EditPlantForm
-			{
-
-				public string ID { get; set; }
-
-				[StringLength(30, ErrorMessage = "Name length can't be more than 30.")]
-				public string PlantName { get; set; }
+	EditPlantForm model = new EditPlantForm();
 
 
-				[StringLength(30, ErrorMessage = "Type length can't be more than 30.")]
-				public string PlantType { get; set; }
+	bool updated;
+
+	public record EditPlantForm
+	{
+
+		public string ID { get; set; }
+
+		[StringLength(30, ErrorMessage = "Name length can't be more than 30.")]
+		public string PlantName { get; set; }
 
 
-				[StringLength(200, ErrorMessage = "Info can't be longer than 200 character.")]
-				public string Info { get; set; }
-
-				public Image Image { get; set; }
-			}
+		[StringLength(30, ErrorMessage = "Type length can't be more than 30.")]
+		public string PlantType { get; set; }
 
 
-			protected override async Task OnInitializedAsync()
-			{
-				plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
-				
+		[StringLength(200, ErrorMessage = "Info can't be longer than 200 character.")]
+		public string Info { get; set; }
 
-				if (plant.Image == null)
-				{
-					plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
-				}
+		public Image Image { get; set; }
+	}
 
-				imageSrc = plant.Image.ImagePath;
+	IList<IBrowserFile> files = new List<IBrowserFile>();
+	string imageSrc = "";
+	private async Task UploadImage(InputFileChangeEventArgs e)
+	{
+		MemoryStream ms = new MemoryStream();
+		await e.File.OpenReadStream().CopyToAsync(ms);
+		var bytes = ms.ToArray();
 
-				model.PlantName = plant.PlantName;
-				model.PlantType = plant.PlantType;
-				model.Info = plant.Info;
-				model.ID = plant.ID.ToString();
-				model.Image = plant.Image;
-			}
+		var base64 = Convert.ToBase64String(bytes);
+		imageSrc = String.Format("data:image/gif;base64,{0}", base64);
+		model.Image.ImagePath = imageSrc;
+	}
 
-			private async Task UpdatePlant()
-			{
-				plant.Image = model.Image;
-				plant.PlantName = model.PlantName;
-				plant.PlantType = model.PlantType;
-				plant.Info = model.Info;
-				var status = await Http.PutAsJsonAsync($"plants/{ID}", plant);
-				if (status.IsSuccessStatusCode)
-				{
-					updated = true;
-					StateHasChanged();
-				}
+	protected override async Task OnInitializedAsync()
+	{
 
-			}
 
-			private void OpenDialog()
-			{
-				var parameters = new DialogParameters();
-				parameters.Add("plant", plant);
-				DialogService.Show<Delete_Dialog>("Delete this plant?", parameters);
-			} }
+		plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
+
+
+		if (plant.Image == null)
+		{
+			plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
+		}
+
+		imageSrc = plant.Image.ImagePath;
+
+		model.PlantName = plant.PlantName;
+		model.PlantType = plant.PlantType;
+		model.Info = plant.Info;
+		model.ID = plant.ID.ToString();
+		model.Image = plant.Image;
+	}
+
+	private async Task UpdatePlant()
+	{
+		plant.Image = model.Image;
+		plant.PlantName = model.PlantName;
+		plant.PlantType = model.PlantType;
+		plant.Info = model.Info;
+		var status = await Http.PutAsJsonAsync($"plants/{ID}", plant);
+		if (status.IsSuccessStatusCode)
+		{
+			updated = true;
+			StateHasChanged();
+		}
+
+	}
+
+	private void DeleteUser()
+	{
+		var parameters = new DialogParameters();
+		parameters.Add("plant", plant);
+		DialogService.Show<Delete_dialog>("Delete this plant?", parameters);
+	}
+
+}
 
 

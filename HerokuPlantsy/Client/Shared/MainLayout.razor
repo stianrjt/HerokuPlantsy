@@ -1,6 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
 <MudThemeProvider Theme="MyCustomTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 @code{
 	MudTheme MyCustomTheme = new MudTheme()
@@ -14,14 +16,14 @@
 			TextPrimary = Colors.Grey.Darken4,
 			Background = Colors.Grey.Lighten2,
 			DrawerBackground = Colors.Grey.Lighten2,
-		
+
 		},
 
 		LayoutProperties = new LayoutProperties()
 		{
 			DrawerWidthLeft = "180px",
 			DrawerWidthRight = "200px",
-			
+
 		}
 	};
 }
@@ -32,18 +34,18 @@
 	<MudAppBar Elevation="1">
 		<MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
 		<NavLink class="nav-link" href="about">
-			 About
+			About
 		</NavLink>
 		<MudSpacer />
 
-		<LoginDisplay />
+
 
 		<MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
 	</MudAppBar>
 	<MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-		<MudDrawerHeader >
+		<MudDrawerHeader>
 			<MudText Typo="Typo.h5" Style="color: #33691E" Class="mt-1"><strong>Plantsy</strong></MudText>
-			<MudIcon Icon="fas fa-leaf" Style="color: #33691E"/>
+			<MudIcon Icon="fas fa-leaf" Style="color: #33691E" />
 		</MudDrawerHeader>
 		<NavMenu />
 	</MudDrawer>

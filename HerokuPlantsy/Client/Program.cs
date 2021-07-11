@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using HerokuPlantsy.Client.Shared;
 
 namespace HerokuPlantsy.Client
 {

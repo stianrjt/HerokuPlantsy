@@ -42,7 +42,7 @@ else
 			<MudTd DataLabel="wateredDate">@context.LastWatered.DateTime</MudTd>
 			<MudTd DataLabel="info" HideSmall="_hidePosition">@context.Info</MudTd>
 			<MudTd DataLabel="wateredNow">
-				@if ((DateTimeOffset.Now - context.LastWatered).Days < 5)
+				@if ((DateTimeOffset.Now - context.LastWatered).Days < 3)
 					{
 					<MudButton Color="Color.Success" Variant="Variant.Filled" Size="Size.Small"
 							   OnClick="@(() => WaterPlant(context))">Water Plant</MudButton>

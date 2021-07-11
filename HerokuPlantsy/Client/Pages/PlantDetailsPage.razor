@@ -7,50 +7,79 @@
 @inject IDialogService DialogService
 @using System.ComponentModel.DataAnnotations
 
-<h1>PlantDetailsPage</h1>
-<h2>HER KOMMER DETALJER OG GRAFER OM PLANTEN SNART :D !!! </h2>
+@if (plant == null)
+{
+	<MudSkeleton />
+	<MudSkeleton SkeletonType="SkeletonType.Circle" Width="50px" Height="50px" />
+	<MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="200px" Height="110px" />
+}
 
 @if (plant != null)
 {
-	<h1>@plant.PlantName</h1>
-	<h1>@plant.PlantType</h1>
-	<h1>@plant.Info</h1>
-	<img src="@plant.Image.ImagePath" alt="plaaaaaant" />
+	var link = $"editPlant/{plant.ID.ToString()}";
+<MudGrid>
+	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="3">
+		<img src="@plant.Image.ImagePath" alt="plantimage" height="200" width="200" />
+	</MudItem>
 
-	<h2>WATER LOG</h2>
-	<MudList Class="align-content-end">
-		@foreach (var item in plant.WaterLog)
-		{
-			<MudListItem Icon="fas fa-tint">
-				Watered: @item.WaterDate.LocalDateTime  
-			</MudListItem>
+	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="9">
+		<MudCard>
+			<MudCardContent Elevation="3" Class="flex-wrap ma-2">
+				<MudText Typo="Typo.h3">@plant.PlantName</MudText>
+				<MudText Typo="Typo.body1">@plant.PlantType</MudText>
+				<MudText Typo="Typo.body2">@plant.Info</MudText>
+			</MudCardContent>
+			<MudCardActions>
+				<MudLink Href="@link">
+					<MudButton Variant="Variant.Text" Color="Color.Secondary">Edit Plant</MudButton>
+				</MudLink>
+			</MudCardActions>
+		</MudCard>
+	</MudItem>
 
+	<MudItem Style="background-color: transparent; border: hidden; elevation: unset" xs="12" md="12">
+			<MudCard Elevation="3" Class="flex-wrap ma-2">
+				<MudCardContent Elevation="3" Class="flex-wrap ma-2">
+					<MudText Typo="Typo.h3">Water log</MudText>
+					<MudList Class="align-content-end">
+						@foreach (var item in plant.WaterLog)
+						{
+							<MudListItem Icon="fas fa-tint">
+								Watered: @item.WaterDate.LocalDateTime
+							</MudListItem>
+
+						}
+
+					</MudList>
+				</MudCardContent>
+			</MudCard>
+	</MudItem>
+</MudGrid>
 		}
 
-	</MudList>
-}
 
 
 
+		@code {
+			[Parameter]
+			public string ID { get; set; }
 
-@code {
-	[Parameter]
-	public string ID { get; set; }
-
-	Plant plant;
+			Plant plant;
 
 	protected override async Task OnInitializedAsync()
-	{
-
-		
-			plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
-		
-
-		if (plant.Image == null)
 		{
-			plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
+
+
+			plant = await Http.GetFromJsonAsync<Plant>($"plants/{ID}");
+			plant.WaterLog.Sort((x, y) => DateTimeOffset.Compare(y.WaterDate, x.WaterDate));
+
+
+
+			if (plant.Image == null)
+			{
+				plant.Image = new() { ImagePath = "Strelitzia-reginae-1.jpg", ImageName = plant.PlantName + "Image" };
+			}
+
 		}
 
-	}
-
-}
+		}

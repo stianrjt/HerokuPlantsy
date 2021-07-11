@@ -4,23 +4,32 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>HerokuPlantsy</title>
+    <title>Plantsy</title>
     <base href="/" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
-    <link href="HerokuPlantsy.Client.styles.css" rel="stylesheet" />
 
+    <script src="_content/Microsoft.AspNetCore.Components.WebAssembly.Authentication/AuthenticationService.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </head>
 
 <body>
-    <div id="app">Loading...</div>
+    <div id="app">
+        <div style="align-items: center; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2)" class="card">
+            <div class="container">
+                <h2>Loading...</h2>
+            </div>
+        </div>
+    </div>
+
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
         <a href="" class="reload">Reload</a>
         <a class="dismiss">🗙</a>
     </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+
 </body>
 
 </html>
+
