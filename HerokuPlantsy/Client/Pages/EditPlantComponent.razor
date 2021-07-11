@@ -1,17 +1,13 @@
 ﻿@page "/editPlant/{ID}"
-
 @using Microsoft.AspNetCore.Authorization
-
 @using HerokuPlantsy.Shared
-@using HerokuPlantsy.Client.Pages
-
-
 @using System.IO
 @attribute [Authorize]
 @inject HttpClient Http
 @inject NavigationManager NavManager
 @inject IDialogService DialogService
 @using System.ComponentModel.DataAnnotations
+
 
 @if (updated)
 {
